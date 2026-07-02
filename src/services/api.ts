@@ -10,7 +10,7 @@ async function request(path: string, opts: RequestInit = {}) {
   return res.json();
 }
 
-function authHeaders(token?: string | null) {
+function authHeaders(token?: string | null): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
@@ -52,7 +52,14 @@ export async function getFavorites(token: string) {
   return res.data;
 }
 
-export async function addFavorite(token: string, payload: any) {
+export interface FavoritePayload {
+  xid: string;
+  destinationName: string;
+  image?: string;
+  country?: string;
+}
+
+export async function addFavorite(token: string, payload: FavoritePayload) {
   const res = await request(`/api/favorites`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders(token) },
@@ -74,7 +81,15 @@ export async function getVisited(token: string) {
   return res.data;
 }
 
-export async function addVisited(token: string, payload: any) {
+export interface VisitedPayload {
+  xid: string;
+  destinationName: string;
+  image?: string;
+  country?: string;
+  visitedDate?: string | Date;
+}
+
+export async function addVisited(token: string, payload: VisitedPayload) {
   const res = await request(`/api/visited`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders(token) },
@@ -88,4 +103,5 @@ export async function removeVisited(token: string, xid: string) {
   return res.data;
 }
 
-export default { login, register, getProfile };
+const api = { login, register, getProfile, searchDestinations, getDestination, getFavorites, addFavorite, removeFavorite, getVisited, addVisited, removeVisited };
+export default api;

@@ -5,10 +5,18 @@ import * as api from "../../../services/api";
 import { useAuth } from "../../../context/AuthContext";
 import toast from "react-hot-toast";
 
+interface DestinationDetailsData {
+  name: string;
+  country?: string;
+  description?: string;
+  image?: string;
+  weather?: unknown;
+}
+
 export default function DestinationDetails() {
-  const params = useParams();
-  const xid = params.xid;
-  const [data, setData] = useState<any | null>(null);
+  const params = useParams() as { xid?: string | string[] };
+  const xid = Array.isArray(params.xid) ? params.xid[0] : params.xid;
+  const [data, setData] = useState<DestinationDetailsData | null>(null);
   const [loading, setLoading] = useState(true);
   const { token } = useAuth();
 
@@ -16,19 +24,26 @@ export default function DestinationDetails() {
 
   const markVisited = async () => {
     if (!token) return toast.error("Please login to mark visited");
+    if (!xid) return toast.error("Invalid destination id");
+    if (!data) return toast.error("Destination data is unavailable");
+    const destination = data;
     try {
-      await api.addVisited(token, { xid: xid, destinationName: data.name, image: data.image, country: data.country });
+      await api.addVisited(token, { xid, destinationName: destination.name, image: destination.image, country: destination.country });
       toast.success("Marked visited");
-    } catch (err: any) {
-      toast.error(err?.message || JSON.stringify(err));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : JSON.stringify(err);
+      toast.error(message);
     }
   };
 
   const toggleFavorite = async () => {
     if (!token) return toast.error("Please login to favorite");
+    if (!xid) return toast.error("Invalid destination id");
+    if (!data) return toast.error("Destination data is unavailable");
+    const destination = data;
     try {
       if (!isFav) {
-        await api.addFavorite(token, { xid: xid, destinationName: data.name, image: data.image, country: data.country });
+        await api.addFavorite(token, { xid, destinationName: destination.name, image: destination.image, country: destination.country });
         setIsFav(true);
         toast.success("Added to favorites");
       } else {
@@ -36,16 +51,17 @@ export default function DestinationDetails() {
         setIsFav(false);
         toast.success("Removed from favorites");
       }
-    } catch (err: any) {
-      toast.error(err?.message || JSON.stringify(err));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : JSON.stringify(err);
+      toast.error(message);
     }
   };
 
   useEffect(() => {
-    async function load() {
+    async function load(destinationId: string) {
       setLoading(true);
       try {
-        const d = await api.getDestination(xid);
+        const d = await api.getDestination(destinationId);
         setData(d);
       } catch (e) {
         console.error(e);
@@ -53,7 +69,7 @@ export default function DestinationDetails() {
         setLoading(false);
       }
     }
-    if (xid) load();
+    if (xid) load(xid);
   }, [xid]);
 
   if (loading) return <div className="p-6">Loading...</div>;

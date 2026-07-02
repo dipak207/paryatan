@@ -40,7 +40,15 @@ function Footer() {
   );
 }
 
-function DestinationCard({ title, country, price, description, image, weather }: any) {
+interface HomeDestination {
+  title: string;
+  country: string;
+  price: string;
+  description: string;
+  image: string;
+}
+
+function DestinationCard({ title, country, price, description, image }: HomeDestination) {
   return (
     <article className="rounded-xl overflow-hidden flex flex-col bg-surface-container-lowest shadow-sm">
       <div className="relative h-48 w-full overflow-hidden">
@@ -97,7 +105,7 @@ export default function Home() {
             <input className="flex-1 px-4 py-3" placeholder="Search destinations..." defaultValue="Mountains" />
             <button className="bg-primary text-on-primary px-6 py-3 rounded-full">Search</button>
           </div>
-          <p className="text-sm text-on-surface-variant">Showing 124 results for "Mountains"</p>
+          <p className="text-sm text-on-surface-variant">Showing 124 results for &quot;Mountains&quot;</p>
         </section>
 
         <section>

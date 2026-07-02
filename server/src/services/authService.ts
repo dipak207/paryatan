@@ -37,7 +37,7 @@ export async function login(dto: LoginDTO) {
 export async function googleLogin(idToken: string) {
   // Verify token with Google
   const url = `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`;
-  const resp = await (await import("axios")).default.get(url).catch((e) => null);
+  const resp = await (await import("axios")).default.get(url).catch(() => null);
   if (!resp || !resp.data || !resp.data.email) throw { status: 401, message: "Invalid Google token" };
   const { email, name, sub: googleId } = resp.data;
   let user = await User.findOne({ email });
@@ -62,7 +62,7 @@ export async function facebookLogin(accessToken: string) {
   const url = `https://graph.facebook.com/me`;
   const resp = await axios
     .get(url, { params: { fields: "id,name,email", access_token: accessToken } })
-    .catch((e) => null);
+    .catch(() => null);
   if (!resp || !resp.data || !resp.data.id) throw { status: 401, message: "Invalid Facebook token" };
   const { id: facebookId, email, name } = resp.data;
   if (!email) throw { status: 400, message: "Facebook account did not provide email" };

@@ -34,7 +34,7 @@ export async function getDestinationDetails(xid: string) {
       });
       const pages = wikiResp.data.query?.pages;
       if (pages) {
-        const page = Object.values(pages)[0] as any;
+        const page = Object.values(pages)[0] as { original?: { source?: string } };
         image = page.original?.source || null;
       }
     }

@@ -1,12 +1,24 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
 
+interface FavoriteItem {
+  xid: string;
+  destinationName: string;
+  image?: string;
+  country?: string;
+}
+
+interface VisitedItem extends FavoriteItem {
+  visitedDate: string;
+}
+
 export default function ProfilePage() {
   const { user, loading, logout, refreshProfile, token } = useAuth();
-  const [favorites, setFavorites] = useState<any[]>([]);
-  const [visited, setVisited] = useState<any[]>([]);
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+  const [visited, setVisited] = useState<VisitedItem[]>([]);
 
   useEffect(() => {
     async function load() {
@@ -23,7 +35,7 @@ export default function ProfilePage() {
       }
     }
     load();
-  }, [token]);
+  }, [token, refreshProfile]);
 
   if (loading) return <div className="p-6">Loading...</div>;
   if (!user) return <div className="p-6">Unauthorized</div>;
@@ -61,7 +73,7 @@ export default function ProfilePage() {
           {favorites.length === 0 && <p className="text-sm text-gray-500">No favorites yet.</p>}
           {favorites.map((f) => (
             <div key={f.xid} className="flex items-center gap-3 p-3 bg-white rounded shadow-sm">
-              <img src={f.image || '/placeholder.jpg'} alt="" className="w-16 h-12 object-cover rounded" />
+              <Image src={f.image || '/placeholder.jpg'} alt={f.destinationName} width={96} height={72} className="rounded object-cover" />
               <div className="flex-1">
                 <div className="font-medium">{f.destinationName}</div>
                 <div className="text-sm text-gray-500">{f.country}</div>
@@ -78,7 +90,7 @@ export default function ProfilePage() {
           {visited.length === 0 && <p className="text-sm text-gray-500">No visited places yet.</p>}
           {visited.map((v) => (
             <div key={v.xid} className="flex items-center gap-3 p-3 bg-white rounded shadow-sm">
-              <img src={v.image || '/placeholder.jpg'} alt="" className="w-16 h-12 object-cover rounded" />
+              <Image src={v.image || '/placeholder.jpg'} alt={v.destinationName} width={96} height={72} className="rounded object-cover" />
               <div className="flex-1">
                 <div className="font-medium">{v.destinationName}</div>
                 <div className="text-sm text-gray-500">{v.country} • {new Date(v.visitedDate).toLocaleDateString()}</div>

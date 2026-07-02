@@ -6,7 +6,16 @@ import toast from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
 import * as api from "../../services/api";
 
-export default function DestinationCard({ title, country, price, description, image, xid }: any) {
+interface DestinationCardProps {
+  title: string;
+  country?: string;
+  price?: string;
+  description?: string;
+  image?: string;
+  xid: string;
+}
+
+export default function DestinationCard({ title, country, price, description, image, xid }: DestinationCardProps) {
   const { token } = useAuth();
   const [isFav, setIsFav] = useState(false);
 
@@ -26,8 +35,9 @@ export default function DestinationCard({ title, country, price, description, im
         setIsFav(false);
         toast.success("Removed from favorites");
       }
-    } catch (err: any) {
-      toast.error(err?.message || JSON.stringify(err));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : JSON.stringify(err);
+      toast.error(message);
     }
   };
 

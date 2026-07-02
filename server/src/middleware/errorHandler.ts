@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 
-export function errorHandler(err: any, _req: Request, res: Response, _next: NextFunction) {
+export interface AppError extends Error {
+  status?: number;
+}
+
+export function errorHandler(err: AppError, _req: Request, res: Response, _next: NextFunction) {
+  void _next;
   console.error(err);
   const status = err.status || 500;
   const message = err.message || "Internal Server Error";

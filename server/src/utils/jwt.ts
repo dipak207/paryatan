@@ -7,10 +7,10 @@ export function generateToken(payload: object) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 }
 
-export function verifyToken(token: string) {
+export function verifyToken(token: string): object | null {
   try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch (err) {
+    return jwt.verify(token, JWT_SECRET) as object;
+  } catch {
     return null;
   }
 }

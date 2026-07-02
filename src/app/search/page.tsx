@@ -1,16 +1,24 @@
 "use client";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import * as api from "../../services/api";
 import DestinationCard from "../components/DestinationCard";
 
+interface SearchResult {
+  xid?: string;
+  name?: string;
+  country?: string;
+  address?: { country?: string };
+  kinds?: string;
+  wikipedia_extracts?: { text?: string };
+  preview?: { source?: string };
+}
+
 export default function SearchPage() {
   const [q, setQ] = useState("Mountains");
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
-  const doSearch = async (e?: React.FormEvent) => {
+  const doSearch = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault();
     setLoading(true);
     try {
@@ -35,11 +43,16 @@ export default function SearchPage() {
         <div>Loading...</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {results.map((r) => (
-            <div key={r.xid || r.name}> 
-              <DestinationCard title={r.name} country={r.country || r.address?.country} description={r.kinds || r.wikipedia_extracts?.text} image={r.preview?.source || ""} />
-            </div>
-          ))}
+          {results.map((r) => {
+            const title = r.name ?? "Unknown destination";
+            const country = r.country ?? r.address?.country ?? "Unknown";
+            const xid = r.xid ?? title;
+            return (
+              <div key={xid}>
+                <DestinationCard title={title} country={country} description={r.kinds || r.wikipedia_extracts?.text} image={r.preview?.source || ""} xid={xid} />
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

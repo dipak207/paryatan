@@ -1,4 +1,5 @@
 import User from "../models/User";
+import { IFavorite } from "../models/User";
 
 interface FavoriteDTO {
   xid: string;
@@ -17,7 +18,7 @@ export async function addFavorite(userId: string, dto: FavoriteDTO) {
   if (!user) throw { status: 404, message: "User not found" };
   const exists = user.favorites.find((f) => f.xid === dto.xid);
   if (exists) throw { status: 409, message: "Already in favorites" };
-  user.favorites.push(dto as any);
+  user.favorites.push(dto as IFavorite);
   await user.save();
   return user.favorites;
 }

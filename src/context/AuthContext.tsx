@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     }
     init();
-  }, []); // run once
+  }, [token]);
 
   const login = async (email: string, password: string) => {
     const res = await api.login(email, password);

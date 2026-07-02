@@ -1,4 +1,5 @@
 import User from "../models/User";
+import { IVisited } from "../models/User";
 
 interface VisitedDTO {
   xid: string;
@@ -19,7 +20,7 @@ export async function addVisited(userId: string, dto: VisitedDTO) {
   const exists = user.visited.find((v) => v.xid === dto.xid);
   if (exists) throw { status: 409, message: "Already marked visited" };
   const visitedDate = dto.visitedDate ? new Date(dto.visitedDate) : new Date();
-  user.visited.push({ ...(dto as any), visitedDate });
+  user.visited.push({ ...(dto as Omit<IVisited, "visitedDate">), visitedDate } as IVisited);
   await user.save();
   return user.visited;
 }
