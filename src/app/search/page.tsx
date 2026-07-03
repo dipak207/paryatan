@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from "react";
-import * as api from "../../services/api";
-import DestinationCard from "../components/DestinationCard";
+import * as api from "@/services/api";
+import DestinationCard from "../components/destination-card";
+import { Button } from "@/components/ui/button";
 
 interface SearchResult {
   xid?: string;
@@ -32,29 +33,56 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 py-8">
-      <form onSubmit={doSearch} className="mb-6">
-        <div className="flex gap-2">
-          <input value={q} onChange={(e) => setQ(e.target.value)} className="flex-1 px-4 py-3 rounded" />
-          <button className="bg-primary text-on-primary px-4 py-2 rounded">Search</button>
+    <main className="min-h-[calc(100vh-8rem)] bg-background py-12">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="rounded-[2rem] border border-border bg-surface p-8 shadow-sm">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-on-surface-variant">Explore</p>
+              <h1 className="mt-3 text-3xl font-semibold text-foreground">Search destinations and save favorites.</h1>
+            </div>
+            <p className="max-w-xl text-sm leading-6 text-on-surface-variant">
+              Use a keyword to discover destinations, save them to your profile, and keep track of your visited places.
+            </p>
+          </div>
+
+          <form onSubmit={doSearch} className="mt-8 grid gap-3 sm:grid-cols-[1fr_auto]">
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              className="w-full rounded-3xl border border-border bg-surface px-5 py-4 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+              placeholder="Search destinations, cities or landmarks"
+            />
+            <Button type="submit" className="w-full sm:w-auto">
+              {loading ? "Searching..." : "Search"}
+            </Button>
+          </form>
         </div>
-      </form>
-      {loading ? (
-        <div>Loading...</div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {results.map((r) => {
-            const title = r.name ?? "Unknown destination";
-            const country = r.country ?? r.address?.country ?? "Unknown";
-            const xid = r.xid ?? title;
-            return (
-              <div key={xid}>
-                <DestinationCard title={title} country={country} description={r.kinds || r.wikipedia_extracts?.text} image={r.preview?.source || ""} xid={xid} />
-              </div>
-            );
-          })}
+
+        <div className="mt-10">
+          {loading ? (
+            <div className="rounded-[2rem] border border-border bg-surface p-12 text-center text-on-surface-variant">Loading results...</div>
+          ) : results.length === 0 ? (
+            <div className="rounded-[2rem] border border-border bg-surface p-12 text-center text-on-surface-variant">No destinations found yet — try another search.</div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {results.map((result) => {
+                if (!result.xid) return null;
+                return (
+                  <DestinationCard
+                    key={result.xid}
+                    xid={result.xid}
+                    title={result.name}
+                    country={result.country}
+                    description={result.description || undefined}
+                    image={result.image || undefined}
+                  />
+                );
+              })}
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </div>
+    </main>
   );
 }

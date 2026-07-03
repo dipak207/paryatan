@@ -3,8 +3,13 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import { Heart, MapPin, ArrowRight, CloudSun, DollarSign, Calendar } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import * as api from "../../services/api";
+import { Card, CardContent, CardFooter } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Badge } from "../../components/ui/badge";
+import Image from "next/image";
 
 interface DestinationCardProps {
   title: string;
@@ -42,24 +47,43 @@ export default function DestinationCard({ title, country, price, description, im
   };
 
   return (
-    <article className="rounded-xl overflow-hidden flex flex-col bg-white shadow group">
-      <div className="relative h-48 w-full overflow-hidden">
-        <div className="bg-cover bg-center w-full h-full transform group-hover:scale-105 transition-transform duration-500" style={{ backgroundImage: `url(${image || '/placeholder.jpg'})` }} />
-        <button onClick={toggleFavorite} className={`absolute top-2 left-2 p-2 rounded-full bg-white/80 ${isFav ? 'text-red-500' : 'text-gray-600'}`} aria-label="Favorite">
-          {isFav ? '♥' : '♡'}
+    <Card className="group flex h-full flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+      <div className="relative h-56 w-full overflow-hidden">
+        <Image
+          src={image || "/placeholder.jpg"}
+          alt={title}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 33vw"
+        />
+        <button
+          onClick={toggleFavorite}
+          className={`absolute top-4 right-4 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/90 shadow-sm transition hover:bg-white ${isFav ? "text-red-600" : "text-slate-700"}`}
+          aria-label="Favorite"
+        >
+          <Heart className="h-5 w-5" />
         </button>
       </div>
-      <div className="p-4 flex flex-col flex-grow">
-        <div className="flex justify-between items-start mb-1">
-          <h2 className="text-lg font-semibold">{title}</h2>
-          <span className="px-2 py-1 rounded bg-gray-100 text-sm">{price || "$$"}</span>
+      <CardContent className="flex flex-1 flex-col gap-4 p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
+            <div className="mt-3 flex items-center gap-2 text-sm text-slate-500">
+              <MapPin className="h-4 w-4" />
+              <span>{country || "Unknown"}</span>
+            </div>
+          </div>
+          <Badge>{price || "$200+"}</Badge>
         </div>
-        <p className="text-sm text-gray-600 mb-3 flex items-center gap-2">📍 {country}</p>
-        <p className="text-sm text-gray-800 mb-4 line-clamp-2">{description}</p>
-        <div className="mt-auto pt-3 border-t border-gray-100">
-          <Link href={`/destination/${encodeURIComponent(xid || title)}`} className="w-full bg-primary/10 text-primary py-2 rounded-lg flex items-center justify-center gap-2">View Details →</Link>
-        </div>
-      </div>
-    </article>
+        <p className="text-sm leading-6 text-slate-600 line-clamp-3">{description}</p>
+      </CardContent>
+      <CardFooter className="gap-3 px-6 pb-6 pt-0">
+        <Button className="w-full gap-2 justify-center text-sm font-semibold" variant="outline">
+          <Link href={`/destination/${encodeURIComponent(xid)}`} className="inline-flex items-center gap-2">
+            View Details <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }

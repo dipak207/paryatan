@@ -1,8 +1,5 @@
-const BACKEND = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
 async function request(path: string, opts: RequestInit = {}) {
-  const url = `${BACKEND}${path}`;
-  const res = await fetch(url, opts);
+  const res = await fetch(path, opts);
   if (!res.ok) {
     const data = await res.json().catch(() => null);
     throw data || new Error(`Request failed: ${res.status}`);
@@ -28,6 +25,15 @@ export async function register(name: string, email: string, password: string) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, email, password }),
+  });
+  return res.data;
+}
+
+export async function googleLogin(idToken: string) {
+  const res = await request(`/api/auth/google`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken }),
   });
   return res.data;
 }
@@ -103,5 +109,5 @@ export async function removeVisited(token: string, xid: string) {
   return res.data;
 }
 
-const api = { login, register, getProfile, searchDestinations, getDestination, getFavorites, addFavorite, removeFavorite, getVisited, addVisited, removeVisited };
+const api = { login, register, googleLogin, getProfile, searchDestinations, getDestination, getFavorites, addFavorite, removeFavorite, getVisited, addVisited, removeVisited };
 export default api;

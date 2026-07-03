@@ -1,122 +1,83 @@
+import DestinationCard from "./components/destination-card";
+import { Button } from "@/components/ui/button";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 
-function Navbar() {
-  return (
-    <header className="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl sticky top-0 z-50">
-      <div className="flex justify-between items-center px-6 py-4 w-full max-w-7xl mx-auto">
-        <div className="font-display-lg text-display-lg font-bold text-primary">Paryatan</div>
-        <nav className="hidden md:flex gap-6 items-center">
-          <Link href="#" className="text-on-surface-variant hover:text-primary">Home</Link>
-          <Link href="/search" className="text-primary font-bold border-b-2 border-primary pb-1">Explore</Link>
-          <Link href="#" className="text-on-surface-variant hover:text-primary">About</Link>
-        </nav>
-        <div className="flex items-center gap-4">
-          <button aria-label="Search" className="p-2 rounded-full">🔍</button>
-          <Link href="/login" className="bg-primary text-on-primary px-4 py-2 rounded-full">Login</Link>
-        </div>
-      </div>
-    </header>
-  );
+async function getFeaturedDestinations() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_BASE_URL ?? ""}/api/featured`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to load featured destinations");
+  }
+
+  const json = await res.json();
+  return json.data ?? [];
 }
 
-function Footer() {
-  return (
-    <footer className="bg-surface-container-highest border-t mt-auto">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 px-6 py-8 w-full max-w-7xl mx-auto">
-        <div>
-          <div className="font-display-lg-mobile text-display-lg-mobile font-bold">Paryatan</div>
-          <p className="text-sm text-on-surface-variant">© 2026 Paryatan Travel Planning. All rights reserved.</p>
-        </div>
-        <div className="flex flex-col gap-2">
-          <a href="#" className="text-sm text-on-surface-variant hover:text-primary">About</a>
-          <a href="#" className="text-sm text-on-surface-variant hover:text-primary">Contact</a>
-        </div>
-        <div className="flex flex-col gap-2">
-          <a href="#" className="text-sm text-on-surface-variant hover:text-primary">Privacy</a>
-          <a href="#" className="text-sm text-on-surface-variant hover:text-primary">Terms</a>
-        </div>
-      </div>
-    </footer>
-  );
-}
+export default async function Home() {
+  let featuredDestinations = [];
 
-interface HomeDestination {
-  title: string;
-  country: string;
-  price: string;
-  description: string;
-  image: string;
-}
-
-function DestinationCard({ title, country, price, description, image }: HomeDestination) {
-  return (
-    <article className="rounded-xl overflow-hidden flex flex-col bg-surface-container-lowest shadow-sm">
-      <div className="relative h-48 w-full overflow-hidden">
-        <div className="bg-cover bg-center w-full h-full" style={{ backgroundImage: `url(${image})` }} />
-        <button className="absolute top-2 left-2 p-2 rounded-full bg-white/80">♡</button>
-      </div>
-      <div className="p-4 flex flex-col flex-grow">
-        <div className="flex justify-between items-start mb-1">
-          <h2 className="text-lg font-semibold">{title}</h2>
-          <span className="px-2 py-1 rounded bg-secondary-container text-on-secondary-container text-xs">{price}</span>
-        </div>
-        <p className="text-sm text-on-surface-variant mb-3 flex items-center gap-2">📍 {country}</p>
-        <p className="text-sm text-on-surface mb-4 line-clamp-2">{description}</p>
-        <div className="mt-auto pt-3 border-t border-outline-variant/50">
-          <Link href={`/destination/${encodeURIComponent(title)}`} className="w-full bg-primary/10 text-primary py-2 rounded-lg flex items-center justify-center gap-2">View Details →</Link>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-export default function Home() {
-  const sample = [
-    {
-      title: "Swiss Alps",
-      country: "Switzerland",
-      price: "$$$",
-      description: "Experience the majestic peaks and pristine valleys of the Swiss Alps.",
-      image: "https://images.unsplash.com/photo-1508264165352-c3d1a6d5a3b8?auto=format&fit=crop&w=1000&q=80",
-    },
-    {
-      title: "Rocky Mountains",
-      country: "USA",
-      price: "$$",
-      description: "Explore the rugged beauty of the Rockies.",
-      image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1000&q=80",
-    },
-    {
-      title: "Mount Fuji",
-      country: "Japan",
-      price: "$$$",
-      description: "Witness the iconic beauty of Mount Fuji.",
-      image: "https://images.unsplash.com/photo-1505672678657-cc7037095e06?auto=format&fit=crop&w=1000&q=80",
-    },
-  ];
+  try {
+    featuredDestinations = await getFeaturedDestinations();
+  } catch (error) {
+    console.error(error);
+    featuredDestinations = [];
+  }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
-      <main className="flex-grow w-full max-w-7xl mx-auto px-6 py-12 flex flex-col gap-8">
-        <section className="flex flex-col items-center gap-6">
-          <h1 className="text-3xl font-bold">Explore Destinations</h1>
-          <div className="w-full max-w-2xl flex items-center bg-white rounded-full overflow-hidden shadow">
-            <input className="flex-1 px-4 py-3" placeholder="Search destinations..." defaultValue="Mountains" />
-            <button className="bg-primary text-on-primary px-6 py-3 rounded-full">Search</button>
+    <main className="min-h-[calc(100vh-8rem)] bg-background py-16">
+      <div className="mx-auto max-w-7xl px-6">
+        <section className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+          <div className="space-y-6">
+            <p className="inline-flex rounded-full bg-primary/10 px-4 py-1 text-sm font-semibold text-primary">Smart travel planning</p>
+            <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+              Plan your next adventure with confidence.
+            </h1>
+            <p className="max-w-2xl text-lg leading-8 text-on-surface-variant">
+              Paryatan brings travel discovery, weather insights, favorites, and trip planning together in one modern experience.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Link href="/search">
+                <Button>Start exploring</Button>
+              </Link>
+              <Link href="/signup">
+                <Button variant="outline">Create account</Button>
+              </Link>
+            </div>
           </div>
-          <p className="text-sm text-on-surface-variant">Showing 124 results for &quot;Mountains&quot;</p>
+
+          <div className="rounded-[2rem] bg-surface p-6 shadow-xl shadow-slate-200/60 ring-1 ring-slate-100">
+            <div className="grid gap-4">
+              <div className="rounded-3xl border border-border bg-surface-container-high p-6">
+                <p className="text-sm text-on-surface-variant">Popular this week</p>
+                <h2 className="mt-3 text-2xl font-semibold text-foreground">Best mountain escapes</h2>
+              </div>
+              <div className="rounded-3xl border border-border bg-surface-container-high p-6">
+                <p className="text-sm text-on-surface-variant">Live updates</p>
+                <p className="mt-3 text-base leading-7 text-on-surface">Get destination weather, notes, and recommendations from one place.</p>
+              </div>
+            </div>
+          </div>
         </section>
 
-        <section>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {sample.map((s) => (
-              <DestinationCard key={s.title} {...s} />
+        <section className="mt-16 space-y-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-on-surface-variant">Featured stays</p>
+              <h2 className="text-3xl font-semibold text-foreground">Curated destination picks</h2>
+            </div>
+            <p className="text-sm text-on-surface-variant">Browse top destinations and save favorites as you go.</p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {featuredDestinations.map((destination) => (
+              <DestinationCard key={destination.xid} {...destination} />
             ))}
           </div>
         </section>
-      </main>
-      <Footer />
-    </div>
+      </div>
+    </main>
   );
 }

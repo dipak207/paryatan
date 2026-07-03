@@ -12,6 +12,7 @@ type AuthContextType = {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   logout: () => void;
   refreshProfile: () => Promise<void>;
 };
@@ -67,6 +68,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/");
   };
 
+  const loginWithGoogle = async (idToken: string) => {
+    const res = await api.googleLogin(idToken);
+    setToken(res.token);
+    localStorage.setItem("token", res.token);
+    const profile = await api.getProfile(res.token);
+    setUser(profile.user || profile);
+    router.push("/");
+  };
+
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -81,7 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, refreshProfile }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, loginWithGoogle, logout, refreshProfile }}>
       <Toaster position="top-right" />
       {children}
     </AuthContext.Provider>
