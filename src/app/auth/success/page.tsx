@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 
-export default function AuthSuccessPage() {
+function AuthSuccessContent() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -22,11 +22,23 @@ export default function AuthSuccessPage() {
   }, [searchParams]);
 
   return (
+    <div className="mx-auto max-w-xl px-6 text-center">
+      <p className="text-lg font-medium text-foreground">Finishing authentication...</p>
+      <p className="mt-4 text-sm text-on-surface-variant">Please wait while we sign you in and redirect to the homepage.</p>
+    </div>
+  );
+}
+
+export default function AuthSuccessPage() {
+  return (
     <main className="min-h-[calc(100vh-8rem)] bg-background py-16">
-      <div className="mx-auto max-w-xl px-6 text-center">
-        <p className="text-lg font-medium text-foreground">Finishing authentication...</p>
-        <p className="mt-4 text-sm text-on-surface-variant">Please wait while we sign you in and redirect to the homepage.</p>
-      </div>
+      <Suspense fallback={
+        <div className="mx-auto max-w-xl px-6 text-center">
+          <p className="text-lg font-medium text-foreground">Loading authentication...</p>
+        </div>
+      }>
+        <AuthSuccessContent />
+      </Suspense>
     </main>
   );
 }
