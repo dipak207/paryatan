@@ -4,7 +4,7 @@ import { errorResponse, successResponse } from "@/utils/apiResponse";
 import { handleError } from "@/utils/errorHandler";
 import { getCurrentUser } from "@/lib/auth";
 import * as userService from "@/services/userService";
-import { changePasswordSchema, updateProfileSchema } from "@/validators/userValidators";
+import { updateProfileSchema } from "@/validators/userValidators";
 
 export async function GET(request: NextRequest) {
   await connectDB();

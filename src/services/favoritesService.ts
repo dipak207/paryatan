@@ -9,7 +9,7 @@ export async function getFavorites(userId: string) {
 export async function addFavorite(userId: string, dto: IFavorite) {
   const user = await User.findById(userId);
   if (!user) throw { status: 404, message: "User not found" };
-  if (user.favorites.some((favorite) => favorite.xid === dto.xid)) {
+  if (user.favorites.some((favorite: IFavorite) => favorite.xid === dto.xid)) {
     throw { status: 409, message: "Already in favorites" };
   }
   user.favorites.push(dto);
@@ -20,7 +20,7 @@ export async function addFavorite(userId: string, dto: IFavorite) {
 export async function removeFavorite(userId: string, xid: string) {
   const user = await User.findById(userId);
   if (!user) throw { status: 404, message: "User not found" };
-  user.favorites = user.favorites.filter((favorite) => favorite.xid !== xid);
+  user.favorites = user.favorites.filter((favorite: IFavorite) => favorite.xid !== xid);
   await user.save();
   return user.favorites;
 }

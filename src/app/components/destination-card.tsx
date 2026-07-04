@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Heart, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -94,11 +94,13 @@ export default function DestinationCard({
 }: DestinationCardProps) {
   const destinationName = getDisplayName(name, title);
   const displayLocation = formatLocation(country);
+  const [prevImage, setPrevImage] = useState(image);
   const [currentImage, setCurrentImage] = useState(getSafeImage(image));
 
-  useEffect(() => {
+  if (image !== prevImage) {
+    setPrevImage(image);
     setCurrentImage(getSafeImage(image));
-  }, [image]);
+  }
 
   const detailsHref = href || `/destination/${encodeURIComponent(xid)}`;
 

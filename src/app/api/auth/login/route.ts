@@ -1,6 +1,6 @@
 import connectDB from "@/lib/mongodb";
 import { NextRequest } from "next/server";
-import { successResponse, errorResponse } from "@/utils/apiResponse";
+import { successResponse } from "@/utils/apiResponse";
 import { handleError } from "@/utils/errorHandler";
 import { loginSchema } from "@/validators/authValidators";
 import * as authService from "@/services/authService";

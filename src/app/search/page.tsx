@@ -56,8 +56,10 @@ export default function SearchPage() {
     const queryFromUrl = params.get("q");
 
     if (queryFromUrl) {
-      setQ(queryFromUrl);
-      void runSearch(queryFromUrl);
+      setTimeout(() => {
+        setQ(queryFromUrl);
+        void runSearch(queryFromUrl);
+      }, 0);
     }
   }, []);
 

@@ -43,7 +43,7 @@ export function GoogleSignInButton() {
     }
 
     if (window.google?.accounts?.id) {
-      setScriptReady(true);
+      setTimeout(() => setScriptReady(true), 0);
       return;
     }
 
@@ -53,7 +53,7 @@ export function GoogleSignInButton() {
 
     if (existingScript) {
       if (window.google?.accounts?.id) {
-        setScriptReady(true);
+        setTimeout(() => setScriptReady(true), 0);
       } else {
         existingScript.addEventListener("load", () => setScriptReady(true), {
           once: true,

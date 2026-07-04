@@ -1,7 +1,6 @@
-import { verify, sign } from "jsonwebtoken";
-import type { IUser } from "@/models/User";
+import { verify, sign, type SignOptions } from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET as string;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
 
 if (!JWT_SECRET) {
@@ -9,12 +8,14 @@ if (!JWT_SECRET) {
 }
 
 export function generateToken(payload: { id: string }) {
-  return sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  return sign(payload, JWT_SECRET, {
+    expiresIn: JWT_EXPIRES_IN as SignOptions["expiresIn"],
+  });
 }
 
 export function verifyToken(token: string) {
   try {
-    return verify(token, JWT_SECRET) as { id: string };
+    return verify(token, JWT_SECRET) as unknown as { id: string };
   } catch {
     return null;
   }
