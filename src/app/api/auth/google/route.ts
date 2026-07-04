@@ -1,31 +1,79 @@
 import connectDB from "@/lib/mongodb";
-import { NextRequest, NextResponse } from "next/server";
-import { successResponse, errorResponse } from "@/utils/apiResponse";
+import { NextRequest } from "next/server";
+import { OAuth2Client } from "google-auth-library";
+import User from "@/models/User";
+import { generateToken } from "@/lib/auth";
+import { errorResponse, successResponse } from "@/utils/apiResponse";
 import { handleError } from "@/utils/errorHandler";
-import * as authService from "@/services/authService";
+
+const GOOGLE_CLIENT_ID =
+  process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 export async function POST(request: NextRequest) {
-  await connectDB();
   try {
-    const body = await request.json();
-    const { idToken } = body as { idToken?: string };
-    if (!idToken) return errorResponse("idToken required", 400);
-    const result = await authService.googleLogin(idToken);
-    return successResponse(result);
-  } catch (error) {
-    return handleError(error);
-  }
-}
+    if (!GOOGLE_CLIENT_ID) {
+      return errorResponse("Google login is not configured", 500);
+    }
 
-export async function GET(request: NextRequest) {
-  await connectDB();
-  try {
-    const url = new URL(request.url);
-    const code = url.searchParams.get("code");
-    if (!code) return errorResponse("code required", 400);
-    const result = await authService.googleCallback(code);
-    const frontend = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    return NextResponse.redirect(`${frontend}/auth/success?token=${encodeURIComponent(result.token)}`);
+    const body = await request.json();
+    const idToken = body.idToken || body.credential;
+
+    if (!idToken) {
+      return errorResponse("Google ID token is required", 400);
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+
+    if (!payload?.email) {
+      return errorResponse("Google account email not found", 400);
+    }
+
+    if (!payload.email_verified) {
+      return errorResponse("Google email is not verified", 400);
+    }
+
+    await connectDB();
+
+    let user = await User.findOne({ email: payload.email });
+
+    if (!user) {
+      user = await User.create({
+        name: payload.name || payload.email.split("@")[0],
+        email: payload.email,
+        provider: "google",
+        googleId: payload.sub,
+        favorites: [],
+        visited: [],
+      });
+    } else {
+      user.name = user.name || payload.name || payload.email.split("@")[0];
+      user.googleId = user.googleId || payload.sub;
+
+      if (!user.provider || user.provider === "local") {
+        user.provider = user.googleId ? user.provider : "google";
+      }
+
+      await user.save();
+    }
+
+    const token = generateToken({ id: user._id.toString() });
+
+    return successResponse({
+      token,
+      user: {
+        id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        provider: user.provider,
+      },
+    });
   } catch (error) {
     return handleError(error);
   }

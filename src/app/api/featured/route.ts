@@ -1,11 +1,8 @@
-import connectDB from "@/lib/mongodb";
-import { NextRequest } from "next/server";
-import { errorResponse, successResponse } from "@/utils/apiResponse";
-import { handleError } from "@/utils/errorHandler";
 import { getFeaturedDestinations } from "@/services/featuredService";
+import { successResponse } from "@/utils/apiResponse";
+import { handleError } from "@/utils/errorHandler";
 
-export async function GET(request: NextRequest) {
-  await connectDB();
+export async function GET() {
   try {
     const featured = await getFeaturedDestinations();
     return successResponse(featured);
